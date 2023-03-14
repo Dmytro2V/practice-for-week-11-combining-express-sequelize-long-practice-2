@@ -3,11 +3,11 @@ const express = require('express');
 const router = express.Router();
 
 // Import models - DO NOT MODIFY
-const { Insect, Tree } = require('../db/models');
+const { Insect, Tree, InsectTree } = require('../db/models');
 const { Op } = require("sequelize");
 
 /**
- * PHASE 7 - Step A: List of all trees with insects that are near them
+ * PHASE 8/3 - Step A: List of all trees with insects that are near them
  *
  * Approach: Eager Loading
  *
@@ -23,7 +23,16 @@ router.get('/trees-insects', async (req, res, next) => {
     let trees = [];
 
     trees = await Tree.findAll({
-        attributes: ['id', 'tree', 'location', 'heightFt'],
+        attributes: ['id', 'tree', 'location', 'heightFt'],       
+        include: {
+            model: Insect,
+            attributes: ['id', 'name'], 
+            required: true, // this outer j to inner j, so only trees with ins
+            through: {
+                attributes:[]
+            }
+        },
+        order: [['heightFt','DESC'], [Insect, 'name']]
     });
 
     res.json(trees);
@@ -51,10 +60,27 @@ router.get('/insects-trees', async (req, res, next) => {
     });
     for (let i = 0; i < insects.length; i++) {
         const insect = insects[i];
+        // let get trees:
+        const insectTrees = await insect.getTrees({
+            attributes: ['id', 'tree'],
+            order: [['tree', 'asc']]
+        });        
+       // console.log(insectTrees);
+        const insectTreesForOutput = insectTrees.map(itree => {
+            return {
+                    id:itree.id,
+                    tree: itree.tree        
+                    }
+            }
+        );
+        console.log('insectTreesForOutput', insectTreesForOutput);
+
+
         payload.push({
             id: insect.id,
             name: insect.name,
             description: insect.description,
+            trees: insectTreesForOutput 
         });
     }
 

@@ -151,11 +151,11 @@ router.get('/search/:value', async (req, res, next) => {
         insects = await Insect.findAll({
             attributes: ['millimeters', 'name', 'id'],
             where: {
-                insect: {
+                name: {
                     [Op.substring]: req.params.value
                 }
             },
-            order: ['insect']
+            order: ['name']
         });
         
         if (insects.length === 0) {

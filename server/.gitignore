@@ -1,8 +1,7 @@
-# for sequalize practices
+# D2V for sequalize practices 
 server/db/*.db
-server/*.db
 server/.env
-# D- adding zip, because of my scripts
+# D2V - adding .zip because of script
 *.zip
 # Logs
 logs
